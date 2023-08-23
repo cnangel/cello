@@ -16,19 +16,41 @@ jobs:
         - name: Checkout Code
           uses: actions/checkout@master
 
-        - name: build RPM Package for CentOS7
+        - name: Set Variables
+          run: |
+            (
+              echo "GITHUB_REPO_NAME=$(echo "${GITHUB_REPOSITORY}" | cut -d/ -f2)"
+              echo "VERSION=$(echo "${GITHUB_REF_NAME}" | sed -e 's/^v//')"
+              echo "DESCRIPTION=C program to print Hello World."
+              echo "FIRST_YEAR=$(git log $(git rev-list --max-parents=0 HEAD) --date="format:%Y" --format="format:%ad")"
+              echo "THIS_COMMIT_YEAR=$(git log HEAD -n1 --date="format:%Y" --format="format:%ad")"
+              echo "THIS_COMMIT_DATE=$(git log HEAD -n1 --format="format:%as")"
+              if [ "$FIRST_YEAR" = "$THIS_COMMIT_YEAR" ]
+              then
+                echo "YEAR_RANGE=$FIRST_YEAR"
+              else
+                echo "YEAR_RANGE=${FIRST_YEAR}-${THIS_COMMIT_YEAR}"
+              fi
+            ) >> $GITHUB_ENV
+
+        - name: Create Control File
+          # Fields from https://www.debian.org/doc/debian-policy/ch-controlfields.html#binary-package-control-files-debian-control
+          run: |
+            echo mkdir -p SOURCES/${GITHUB_REPO_NAME}/DEBIAN
+
+        - name: Build RPM Package for CentOS7
           id: rpm_build_centos7
           uses: cnangel/rpmbuild@centos7
           with:
               spec_file: "cello.spec"
 
-        - name: build RPM Package for CentOS8
+        - name: Build RPM Package for CentOS8
           id: rpm_build_centos8
           uses: cnangel/rpmbuild@centos8
           with:
               spec_file: "cello.spec"
 
-        - name: build RPM Package for Fedora38
+        - name: Build RPM Package for Fedora38
           id: rpm_build_fedora38
           uses: cnangel/rpmbuild@fedora/38
           with:
