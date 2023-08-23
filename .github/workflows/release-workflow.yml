@@ -16,21 +16,6 @@ jobs:
         - name: Checkout Code
           uses: actions/checkout@master
 
-#        - name: Create Release
-#          id: create_release
-#          uses: actions/create-release@latest
-#          env:
-#              GITHUB_TOKEN: ${{ secrets.SSE_TOKEN }}
-#          with:
-#              tag_name: ${{ github.ref }}
-#              release_name: Release ${{ github.ref }}
-#              body: |
-#                Changes in this Release
-#                - Create RPM
-#                - Upload Source RPM and RPMS
-#              draft: false
-#              prerelease: false
-
         - name: build RPM Package for CentOS7
           id: rpm_build_centos7
           uses: cnangel/rpmbuild@centos7
@@ -40,6 +25,12 @@ jobs:
         - name: build RPM Package for CentOS8
           id: rpm_build_centos8
           uses: cnangel/rpmbuild@centos8
+          with:
+              spec_file: "cello.spec"
+
+        - name: build RPM Package for Fedora38
+          id: rpm_build_fedora38
+          uses: cnangel/rpmbuild@fedora/38
           with:
               spec_file: "cello.spec"
 
@@ -53,34 +44,12 @@ jobs:
               - Create RPM
               - Upload Source RPM and RPMS
             files: |
-              README.md,LICENSE,${{ steps.rpm_build_centos7.outputs.rpm_dir_names }},${{ steps.rpm_build_centos8.outputs.rpm_dir_names }}
+              README.md
+              LICENSE
+              ${{ steps.rpm_build_centos7.outputs.rpm_dir_names }}
+              ${{ steps.rpm_build_centos8.outputs.rpm_dir_names }}
+              ${{ steps.rpm_build_fedora38.outputs.rpm_dir_names }}
             token: ${{ secrets.SSE_TOKEN }}
             draft: false
             prerelease: false
 
-#        - name: Upload Release Asset
-#          id: upload-release-asset
-#          uses: actions/upload-release-asset@v1
-#          env:
-#              GITHUB_TOKEN: ${{ secrets.SSE_TOKEN }}
-#          with:
-#              upload_url: ${{ steps.create_release.outputs.upload_url }}
-#              asset_path: ${{ steps.rpm_build.outputs.source_rpm_path }}
-#              asset_name: ${{ steps.rpm_build.outputs.source_rpm_name }}
-#              asset_content_type: ${{ steps.rpm_build.outputs.rpm_content_type }}
-
-#        - name: Print Var
-#          run: |
-#            echo ${{ steps.rpm_build.outputs.rpm_dir_path }}
-#            echo ${{ steps.rpm_build.outputs.source_rpm_path }}
-#
-#        - name: Upload RPMs Release Asset
-#          id: upload-release-asset
-#          uses: actions/upload-release-asset@v1
-#          env:
-#              GITHUB_TOKEN: ${{ secrets.SSE_TOKEN }}
-#          with:
-#              upload_url: ${{ steps.create_release.outputs.upload_url }}
-#              asset_path: ${{ steps.rpm_build.outputs.rpm_dir_path }}x86_64/cello-1.0.2-1.el7.x86_64.rpm
-#              asset_name: cello-1.0.2-1.el7.x86_64.rpm
-#              asset_content_type: ${{ steps.rpm_build.outputs.rpm_content_type }}
