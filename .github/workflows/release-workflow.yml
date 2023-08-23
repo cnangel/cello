@@ -33,7 +33,7 @@ jobs:
 
         - name: build RPM Package
           id: rpm_build
-          uses: cnangel/rpmbuild@master
+          uses: cnangel/rpmbuild@centos8
           with:
               spec_file: "cello.spec"
 
@@ -44,7 +44,7 @@ jobs:
           uses: softprops/action-gh-release@v1
           with:
             tag_name: ${{ github.ref }}
-            name: Release ${{ github.ref }}
+            name: Release ${{ github.ref_name }}
             body: |
               Changes in this Release ${{ github.ref_name }}
               - Create RPM
