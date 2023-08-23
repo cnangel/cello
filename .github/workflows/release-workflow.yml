@@ -44,7 +44,7 @@ jobs:
               README.md
               LICENSE
               ${{ steps.rpm_build.outputs.rpm_dir_path }}x86_64/cello-1.0.2-1.el7.x86_64.rpm
-            token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+            token: ${{ secrets.SSE_TOKEN }}
 
 #        - name: Upload Release Asset
 #          id: upload-release-asset
