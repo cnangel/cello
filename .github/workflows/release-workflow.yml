@@ -47,7 +47,7 @@ jobs:
               - Create RPM
               - Upload Source RPM and RPMS
             files: |
-              README.md,LICENSE,${{ steps.rpm_build.outputs.rpm_dir_path }}x86_64/cello-1.0.2-1.el7.x86_64.rpm
+              README.md,LICENSE,${{ steps.rpm_build.outputs.rpm_dir_names }}
             token: ${{ secrets.SSE_TOKEN }}
             draft: false
             prerelease: false
