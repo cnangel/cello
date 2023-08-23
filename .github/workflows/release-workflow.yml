@@ -31,15 +31,18 @@ jobs:
 #              draft: false
 #              prerelease: false
 
-        - name: build RPM Package
-          id: rpm_build
-          uses: cnangel/rpmbuild@centos8.x
+        - name: build RPM Package for CentOS7
+          id: rpm_build_centos7
+          uses: cnangel/rpmbuild@centos7
           with:
               spec_file: "cello.spec"
 
-        - name: Print output
-          run: echo ${{ steps.rpm_build.outputs.rpm_dir_names }}
-    
+        - name: build RPM Package for CentOS8
+          id: rpm_build_centos8
+          uses: cnangel/rpmbuild@centos8
+          with:
+              spec_file: "cello.spec"
+
         - name: Release
           uses: softprops/action-gh-release@v1
           with:
@@ -50,7 +53,7 @@ jobs:
               - Create RPM
               - Upload Source RPM and RPMS
             files: |
-              README.md, LICENSE, ${{ steps.rpm_build.outputs.rpm_dir_names }}
+              README.md,LICENSE,${{ steps.rpm_build_centos7.outputs.rpm_dir_names }},${{ steps.rpm_build_centos8.outputs.rpm_dir_names }}
             token: ${{ secrets.SSE_TOKEN }}
             draft: false
             prerelease: false
