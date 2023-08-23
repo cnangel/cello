@@ -21,12 +21,12 @@ jobs:
     # Runs a community action
     - name: build RPM package
       id: rpm
-      uses: naveenrajm7/rpmbuild@master
+      uses: cnangel/rpmbuild@master
       with:
         spec_file: "cello.spec"
     
     - name: Print output
-      run: echo ${{steps.rpm.outputs.source_rpm_path}}
+      run: echo ${{steps.rpm.outputs.rpm_dir_path}}
     
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
