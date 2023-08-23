@@ -33,7 +33,7 @@ jobs:
 
         - name: build RPM Package
           id: rpm_build
-          uses: cnangel/rpmbuild@centos8
+          uses: cnangel/rpmbuild@centos8.x
           with:
               spec_file: "cello.spec"
 
