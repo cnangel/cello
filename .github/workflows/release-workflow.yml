@@ -16,20 +16,20 @@ jobs:
         - name: Checkout Code
           uses: actions/checkout@master
 
-        - name: Create Release
-          id: create_release
-          uses: actions/create-release@latest
-          env:
-              GITHUB_TOKEN: ${{ secrets.SSE_TOKEN }}
-          with:
-              tag_name: ${{ github.ref }}
-              release_name: Release ${{ github.ref }}
-              body: |
-                Changes in this Release
-                - Create RPM
-                - Upload Source RPM and RPMS
-              draft: false
-              prerelease: false
+#        - name: Create Release
+#          id: create_release
+#          uses: actions/create-release@latest
+#          env:
+#              GITHUB_TOKEN: ${{ secrets.SSE_TOKEN }}
+#          with:
+#              tag_name: ${{ github.ref }}
+#              release_name: Release ${{ github.ref }}
+#              body: |
+#                Changes in this Release
+#                - Create RPM
+#                - Upload Source RPM and RPMS
+#              draft: false
+#              prerelease: false
 
         - name: build RPM Package
           id: rpm_build
@@ -40,11 +40,17 @@ jobs:
         - name: Release
           uses: softprops/action-gh-release@v1
           with:
+            tag_name: ${{ github.ref }}
+            release_name: Release ${{ github.ref }}
+            body: |
+              Changes in this Release ${{ github.ref }}
+              - Create RPM
+              - Upload Source RPM and RPMS
             files: |
-              README.md
-              LICENSE
-              ${{ steps.rpm_build.outputs.rpm_dir_path }}x86_64/cello-1.0.2-1.el7.x86_64.rpm
+              README.md LICENSE ${{ steps.rpm_build.outputs.rpm_dir_path }}x86_64/cello-1.0.2-1.el7.x86_64.rpm
             token: ${{ secrets.SSE_TOKEN }}
+            draft: false
+            prerelease: false
 
 #        - name: Upload Release Asset
 #          id: upload-release-asset
