@@ -17,7 +17,7 @@ jobs:
           run: sudo apt-get update
 
         - name: Install Dependencies
-          uses: apt-get install -y jo
+          run: apt-get install -y jo
 
         - name: Checkout Code
           uses: actions/checkout@master
