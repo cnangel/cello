@@ -37,6 +37,9 @@ jobs:
           with:
               spec_file: "cello.spec"
 
+        - name: Print output
+          run: echo ${{ steps.rpm_build.outputs.rpm_dir_names }}
+    
         - name: Release
           uses: softprops/action-gh-release@v1
           with:
@@ -47,7 +50,7 @@ jobs:
               - Create RPM
               - Upload Source RPM and RPMS
             files: |
-              README.md,LICENSE,${{ steps.rpm_build.outputs.rpm_dir_names }}
+              README.md, LICENSE, ${{ steps.rpm_build.outputs.rpm_dir_names }}
             token: ${{ secrets.SSE_TOKEN }}
             draft: false
             prerelease: false
