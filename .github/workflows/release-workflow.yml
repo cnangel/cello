@@ -19,9 +19,11 @@ jobs:
         - name: Set Variables
           run: |
             (
+              echo "ARCHITECTURE=$(grep ARCHITECTURE README.md |awk '{print $2}')"
               echo "GITHUB_REPO_NAME=$(echo "${GITHUB_REPOSITORY}" | cut -d/ -f2)"
               echo "VERSION=$(echo "${GITHUB_REF_NAME}" | sed -e 's/^v//')"
               echo "DESCRIPTION=C program to print Hello World."
+              echo "DEB_ARCHITECTURE=${ARCHITECTURE:-all}"
               echo "FIRST_YEAR=$(git log $(git rev-list --max-parents=0 HEAD) --date="format:%Y" --format="format:%ad")"
               echo "THIS_COMMIT_YEAR=$(git log HEAD -n1 --date="format:%Y" --format="format:%ad")"
               echo "THIS_COMMIT_DATE=$(git log HEAD -n1 --format="format:%as")"
@@ -36,7 +38,37 @@ jobs:
         - name: Create Control File
           # Fields from https://www.debian.org/doc/debian-policy/ch-controlfields.html#binary-package-control-files-debian-control
           run: |
-            echo mkdir -p SOURCES/${GITHUB_REPO_NAME}/DEBIAN
+            mkdir -p SOURCES/${GITHUB_REPO_NAME}/DEBIAN
+            (
+              echo "Package:      ${GITHUB_REPO_NAME}"
+              echo "Version:      ${VERSION}"
+              echo "Section:      ${SECTION:-misc}"
+              echo "Priority:     ${PRIORITY:-optional}"
+              echo "Architecture: ${DEB_ARCHITECTURE}"
+              if [ -n "${DEPENDS}" ]
+              then
+                echo "Depends: ${DEPENDS}"
+              fi
+              echo "Maintainer: ${MAINTAINER:-Jon Spriggs <jon@sprig.gs>}"
+              echo "Description: ${DESCRIPTION}"
+              if [ -n "${HOMEPAGE}" ]
+              then
+                echo "Homepage: ${HOMEPAGE}"
+              fi
+            ) | tee SOURCES/${GITHUB_REPO_NAME}/DEBIAN/control
+            (
+              echo "Files:"
+              echo " *"
+              echo "Copyright: ${YEAR_RANGE} ${MAINTAINER:-Jon Spriggs <jon@sprig.gs>}"
+              echo "License: MIT"
+              echo ""
+              echo "License: MIT"
+              sed 's/^/ /' "SOURCES/${GITHUB_REPO_NAME}/usr/share/doc/${GITHUB_REPO_NAME}/LICENSE"
+            ) | tee SOURCES/${GITHUB_REPO_NAME}/DEBIAN/copyright
+            cat SOURCES/${GITHUB_REPO_NAME}/DEBIAN/control
+            cat SOURCES/${GITHUB_REPO_NAME}/DEBIAN/copyright
+        - name: Build DEB Package
+          run: dpkg-deb --build SOURCES/${GITHUB_REPO_NAME} "${{ env.GITHUB_REPO_NAME }}_${{ env.VERSION }}_${{ env.DEB_ARCHITECTURE }}.deb"
 
 #        - name: Build RPM Package for CentOS7
 #          id: rpm_build_centos7

@@ -17,7 +17,8 @@ $ ./cello
 Hello World
 ```
 
-  
+ARCHITECTURE: amd64
+
 Credits :
 
 [RPM Packaging Guide](https://rpm-packaging-guide.github.io)
