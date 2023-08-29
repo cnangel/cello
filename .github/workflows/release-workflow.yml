@@ -41,6 +41,7 @@ jobs:
           echo "deb_dir_names1=debian/artifacts" >> "$GITHUB_OUTPUT"
           echo "deb_dir_names2=debian/artifacts/cello_0.0.27-1_amd64.deb" >> "$GITHUB_OUTPUT"
           echo ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
+          echo ${{ steps.deb_build_ubuntu3.outputs.abc }}
           echo "$GITHUB_OUTPUT"
           cat $GITHUB_OUTPUT
           ls /home/runner/work/_temp/_runner_file_commands/set_output*
