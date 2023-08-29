@@ -21,13 +21,13 @@ jobs:
         id: deb_build_ubuntu
         uses: cnangel/build-deb-action@master
         with:
-          buildpackage-opts: --build=binary
+          buildpackage_opts: --build=binary
 
       - name: Set Output
         id: deb_build_ubuntu2
         run: |
-          echo ${{ steps.deb_build_ubuntu.inputs.artifacts-dir }}
-          echo ${{ steps.deb_build_ubuntu.inputs.buildpackage-opts }}
+          echo ${{ steps.deb_build_ubuntu.inputs.artifacts_dir }}
+          echo ${{ steps.deb_build_ubuntu.inputs.buildpackage_opts }}
           echo "deb_dir_names=debian/artifacts" >> "$GITHUB_OUTPUT"
           echo "deb_dir_names2=debian/artifacts/cello_0.0.27-1_amd64.deb" >> "$GITHUB_OUTPUT"
           echo ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
