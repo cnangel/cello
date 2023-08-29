@@ -54,6 +54,8 @@ jobs:
             README.md,LICENSE
             ${{ steps.rpm_build_centos7.outputs.rpm_dir_names }}
             ${{ steps.rpm_build_centos8.outputs.rpm_dir_names }}
+            ${{ steps.rpm_build_centos9.outputs.rpm_dir_names }}
+            ${{ steps.rpm_build_fedora38.outputs.rpm_dir_names }}
           token: ${{ secrets.SSE_TOKEN }}
           draft: false
           prerelease: false
