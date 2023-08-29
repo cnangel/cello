@@ -46,7 +46,7 @@ jobs:
               ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
           files: |
             README.md,LICENSE
-            ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names }}
+            ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names2 }}
           token: ${{ secrets.SSE_TOKEN }}
           draft: false
           prerelease: false
