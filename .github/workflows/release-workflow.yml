@@ -28,7 +28,7 @@ jobs:
       - name: Set Output
         id: deb_build_ubuntu2
         run: |
-          echo ${{ GITHUB_OUTPUT }}
+          echo "GITHUB_OUTPUT: $GITHUB_OUTPUT"
           echo ${{ steps.deb_build_ubuntu.inputs.artifacts_dir }}
           echo ${{ steps.deb_build_ubuntu.inputs.buildpackage_opts }}
           echo "deb_dir_names=debian/artifacts" >> "$GITHUB_OUTPUT"
