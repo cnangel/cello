@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Create RPM Release
+    name: Create Release
     runs-on: ubuntu-latest
 
     steps:
