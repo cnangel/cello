@@ -17,11 +17,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@master
 
+      - name: Print Vars
+        run: |
+          echo "Version: " ${GITHUB_REF:10}
+          echo "Version2: " ${GITHUB_REF_NAME:1}
+
       - name: build DEB Package for Ubuntu
         id: deb_build_ubuntu
         uses: cnangel/build-deb-action@master
         with:
-          before_build_hook: sed -i "s#0.0.31-1#${GITHUB_REF:10}#" debian/changelog
+          before_build_hook: sed -i "s#0.0.31#${GITHUB_REF_NAME:1}#" debian/changelog
           buildpackage_opts: --build=binary
 
       - name: Release ${{ github.ref_name }}
