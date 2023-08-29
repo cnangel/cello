@@ -41,9 +41,7 @@ jobs:
             Changes in this Release ${{ github.ref_name }}
             - Create DEB and RPM
             - Upload DEB, Source RPM and RPMS
-            - ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names}}, \
-              ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names2 }} and \
-              ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
+            - ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names}}, ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names2 }} and ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
           files: |
             README.md,LICENSE
             ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names2 }}
