@@ -1,0 +1,8 @@
+*.bak
+cello
+debian/cello/
+debian/cello.substvars
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+*.gz
