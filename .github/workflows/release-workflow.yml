@@ -23,9 +23,11 @@ jobs:
         with:
           buildpackage-opts: --build=binary
 
-      - name: Print Var
+      - name: Set Output
         run: |
           echo ${{ steps.deb_build_ubuntu.inputs.artifacts-dir }}
+          echo ${{ steps.deb_build_ubuntu.inputs.buildpackage-opts }}
+          echo "deb_dir_names=debian/artifacts" >> "$GITHUB_OUTPUT"
           echo ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
 
       - name: Release ${{ github.ref_name }}
