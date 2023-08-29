@@ -1,0 +1,19 @@
+Source: cello
+Section: unknown
+Priority: optional
+Maintainer: Cnangel <cnangel@gmail.com>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 12),
+Standards-Version: 4.6.2
+Homepage: https://github.com/cnangel/cello
+#Vcs-Browser: https://salsa.debian.org/debian/cello
+#Vcs-Git: https://salsa.debian.org/debian/cello.git
+
+Package: cello
+Architecture: any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+Description: <insert up to 60 chars description>
+ <Insert long description, indented with spaces.>
