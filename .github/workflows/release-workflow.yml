@@ -38,7 +38,7 @@ jobs:
         run: |
           echo ${{ steps.deb_build_ubuntu.inputs.artifacts_dir }}
           echo ${{ steps.deb_build_ubuntu.inputs.buildpackage_opts }}
-          echo "deb_dir_names=debian/artifacts" >> "$GITHUB_OUTPUT"
+          echo "deb_dir_names1=debian/artifacts" >> "$GITHUB_OUTPUT"
           echo "deb_dir_names2=debian/artifacts/cello_0.0.27-1_amd64.deb" >> "$GITHUB_OUTPUT"
           echo ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
           echo "$GITHUB_OUTPUT"
@@ -53,7 +53,7 @@ jobs:
             Changes in this Release ${{ github.ref_name }}
             - Create DEB and RPM
             - Upload DEB, Source RPM and RPMS
-            - ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names}}, ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names2 }} and ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
+            - ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names1 }}, ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names2 }} and ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
           files: |
             README.md,LICENSE
             ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names2 }}
