@@ -19,12 +19,14 @@ jobs:
 
       - name: build DEB Package for Ubuntu
         id: rpm_build_ubuntu
-        uses: jtdor/build-deb-action@v1.7.0
+        uses: cnangel/build-deb-action@master
         with:
           buildpackage-opts: --build=binary
 
       - name: Print Var
-        run: ${{ steps.rpm_build_ubuntu.inputs.artifacts-dir }}
+        run: |
+          echo ${{ steps.rpm_build_ubuntu.inputs.artifacts-dir }}
+          echo ${{ steps.rpm_build_ubuntu.outputs.deb_dir_names }}
 
       - name: Release ${{ github.ref_name }}
         uses: softprops/action-gh-release@v1
@@ -37,7 +39,7 @@ jobs:
             - Upload DEB, Source RPM and RPMS
           files: |
             README.md,LICENSE
-            ${{ steps.rpm_build_ubuntu.inputs.artifacts-dir }}
+            ${{ steps.rpm_build_ubuntu.outputs.deb_dir_names }}
           token: ${{ secrets.SSE_TOKEN }}
           draft: false
           prerelease: false
