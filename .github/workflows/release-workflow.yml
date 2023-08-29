@@ -28,11 +28,10 @@ jobs:
       - name: build DEB Package for Ubuntu
         id: deb_build_ubuntu
         uses: cnangel/build-deb-action@master
+        env:
+          GITHUB_OUTPUT: "$GITHUB_OUTPUT"
         with:
           buildpackage_opts: --build=binary
-        run: |
-          echo "$GITHUB_OUTPUT"
-          cat $GITHUB_OUTPUT
 
       - name: Set Output
         id: deb_build_ubuntu2
