@@ -43,6 +43,7 @@ jobs:
           echo ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
           echo "$GITHUB_OUTPUT"
           cat $GITHUB_OUTPUT
+          ls /home/runner/work/_temp/_runner_file_commands/set_output*
 
       - name: Release ${{ github.ref_name }}
         uses: softprops/action-gh-release@v1
