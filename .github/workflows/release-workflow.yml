@@ -37,7 +37,7 @@ jobs:
 
       - name: build RPM Package for Fedora38
         id: rpm_build_fedora38
-        uses: cnangel/rpmbuild@fedora38
+        uses: cnangel/rpmbuild@fedora/38
         with:
           spec_file: "cello.spec"
 
