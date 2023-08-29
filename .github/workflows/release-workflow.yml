@@ -17,14 +17,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@master
 
-      - name: Set Output2
-        id: deb_build_ubuntu3
-        run: |
-          echo "abc=tag" >> "$GITHUB_OUTPUT"
-          echo "tag=abc" >> "$GITHUB_OUTPUT"
-          echo "$GITHUB_OUTPUT"
-          cat $GITHUB_OUTPUT
-
       - name: build DEB Package for Ubuntu
         id: deb_build_ubuntu
         uses: cnangel/build-deb-action@master
@@ -32,19 +24,6 @@ jobs:
           GITHUB_OUTPUT: "$GITHUB_OUTPUT"
         with:
           buildpackage_opts: --build=binary
-
-      - name: Set Output
-        id: deb_build_ubuntu2
-        run: |
-          echo ${{ steps.deb_build_ubuntu.inputs.artifacts_dir }}
-          echo ${{ steps.deb_build_ubuntu.inputs.buildpackage_opts }}
-          echo "deb_dir_names1=debian/artifacts" >> "$GITHUB_OUTPUT"
-          echo "deb_dir_names2=debian/artifacts/cello_0.0.27-1_amd64.deb" >> "$GITHUB_OUTPUT"
-          echo ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
-          echo ${{ steps.deb_build_ubuntu3.outputs.abc }}
-          echo "$GITHUB_OUTPUT"
-          cat $GITHUB_OUTPUT
-          ls /home/runner/work/_temp/_runner_file_commands/set_output*
 
       - name: Release ${{ github.ref_name }}
         uses: softprops/action-gh-release@v1
@@ -54,11 +33,10 @@ jobs:
           body: |
             Changes in this Release ${{ github.ref_name }}
             - Create DEB and RPM
-            - Upload DEB, Source RPM and RPMS ${{ steps.deb_build_ubuntu3.outputs.tag }} | ${{ steps.deb_build_ubuntu3.outputs.abc }}
-            - ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names1 }}, ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names2 }} and ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
+            - Upload DEB, Source RPM and RPMS
           files: |
             README.md,LICENSE
-            ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names2 }}
+            ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
           token: ${{ secrets.SSE_TOKEN }}
           draft: false
           prerelease: false
