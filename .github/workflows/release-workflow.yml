@@ -26,7 +26,7 @@ jobs:
         id: deb_build_ubuntu
         uses: cnangel/build-deb-action@master
         with:
-          before_build_hook: sed -i "s#0.0.31#${GITHUB_REF_NAME:1}#" debian/changelog
+          before_build_hook: my_version=${GITHUB_REF_NAME:1}; echo "s#0.0.31#${my_version}#"; sed -i "s#0.0.31#${my_version}#" debian/changelog
           buildpackage_opts: --build=binary
 
       - name: Release ${{ github.ref_name }}
