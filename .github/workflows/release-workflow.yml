@@ -27,8 +27,9 @@ jobs:
         id: deb_build_ubuntu
         uses: cnangel/build-deb-action@master
         with:
-          before_build_hook: sed -i "s#0.0.31#${{ steps.get_version.outputs.version_id }}#" debian/changelog
+          before_build_hook: sed -i "s#0.0.30#${{ steps.get_version.outputs.version_id }}#" debian/changelog
           buildpackage_opts: --build=binary
+          is_output_all_files: false
 
       - name: Release ${{ github.ref_name }}
         uses: softprops/action-gh-release@v1
