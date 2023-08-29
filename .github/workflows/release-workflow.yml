@@ -1,5 +1,5 @@
 ---
-name: Create RPM Release
+name: Create Release
 
 on:
   push:
