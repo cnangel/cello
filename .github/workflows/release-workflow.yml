@@ -23,7 +23,7 @@ jobs:
         with:
           buildpackage_opts: --build=binary
 
-      - name: Set Output
+      - name: Set Output ${{ github.output }}
         id: deb_build_ubuntu2
         run: |
           echo ${{ steps.deb_build_ubuntu.inputs.artifacts_dir }}
@@ -31,6 +31,7 @@ jobs:
           echo "deb_dir_names=debian/artifacts" >> "$GITHUB_OUTPUT"
           echo "deb_dir_names2=debian/artifacts/cello_0.0.27-1_amd64.deb" >> "$GITHUB_OUTPUT"
           echo ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
+          echo "$GITHUB_OUTPUT"
 
       - name: Release ${{ github.ref_name }}
         uses: softprops/action-gh-release@v1
@@ -41,7 +42,7 @@ jobs:
             Changes in this Release ${{ github.ref_name }}
             - Create DEB and RPM
             - Upload DEB, Source RPM and RPMS
-            - $GITHUB_OUTPUT, ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names}}, ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names2 }} and ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
+            - ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names}}, ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names2 }} and ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
           files: |
             README.md,LICENSE
             ${{ steps.deb_build_ubuntu2.outputs.deb_dir_names2 }}
