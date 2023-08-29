@@ -29,6 +29,18 @@ jobs:
         with:
           spec_file: "cello.spec"
 
+      - name: build RPM Package for CentOS9
+        id: rpm_build_centos9
+        uses: cnangel/rpmbuild@centos9
+        with:
+          spec_file: "cello.spec"
+
+      - name: build RPM Package for Fedora38
+        id: rpm_build_fedora38
+        uses: cnangel/rpmbuild@fedora38
+        with:
+          spec_file: "cello.spec"
+
       - name: Release ${{ github.ref_name }}
         uses: softprops/action-gh-release@v1
         with:
