@@ -89,8 +89,8 @@ jobs:
       - name: Set Output Info
         id: output_info
         run: |
-          echo "deb_packages=$(find ${{ env.deb_path }} -name '*.deb' | jo -a | jq -r 'join("'","'")'" >> $GITHUB_OUTPUT
-          echo "rpm_packages=$(find ${{ env.rpm_path }} -name '*.rpm' | jo -a | jq -r 'join("'","'")'" >> $GITHUB_OUTPUT
+          echo "deb_packages=$(find ${{ env.deb_path }} -name '*.deb' | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
+          echo "rpm_packages=$(find ${{ env.rpm_path }} -name '*.rpm' | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
       - name: Release ${{ github.ref_name }}
         uses: softprops/action-gh-release@v1
