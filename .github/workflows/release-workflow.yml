@@ -286,7 +286,7 @@ jobs:
   publish-release:
     name: Publish Release
     runs-on: ubuntu-latest
-    needs: [deb-build, rpm-build-el7, rpm-build-fc38, basic-build]
+    needs: [deb-build, rpm-build-el7, rpm-build-el8, rpm-build-el9, rpm-build-fc38, basic-build]
     env:
       our_date: ${{ needs.basic-build.outputs.our_date }}
       git_hash: ${{ needs.basic-build.outputs.git_hash }}
