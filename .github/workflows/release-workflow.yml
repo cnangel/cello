@@ -91,11 +91,11 @@ jobs:
 
 
   rpm-build-el7:
-    name: Create el7 Release
+    name: Create Release
     runs-on: ubuntu-latest
     needs: [basic-build]
     outputs:
-      rpm_packages: ${{ steps.output_info.outputs.el7_rpm_packages }}
+      rpm_packages: ${{ steps.output_info.outputs.rpm_packages }}
     env:
       our_date: ${{ needs.basic-build.outputs.our_date }}
       git_hash: ${{ needs.basic-build.outputs.git_hash }}
@@ -117,8 +117,8 @@ jobs:
           key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-${{ github.job }}
 
       - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
-        name: Build RPM Package for CentOS7
-        id: rpm_build_centos7
+        name: Build RPM Package
+        id: rpm_build_el7
         uses: cnangel/rpmbuild@centos7
         with:
           spec_file: "${{ env.package_name }}.spec"
@@ -135,15 +135,15 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y jq jo
-          echo "el7_rpm_packages=$(find ${{ env.rpm_path }} -name '*.el7*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
+          echo "rpm_packages=$(find ${{ env.rpm_path }} -name '*.el7*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
 
   rpm-build-el8:
-    name: Create el8 Release
+    name: Create Release
     runs-on: ubuntu-latest
     needs: [basic-build]
     outputs:
-      rpm_packages: ${{ steps.output_info.outputs.el8_rpm_packages }}
+      rpm_packages: ${{ steps.output_info.outputs.rpm_packages }}
     env:
       our_date: ${{ needs.basic-build.outputs.our_date }}
       git_hash: ${{ needs.basic-build.outputs.git_hash }}
@@ -165,8 +165,8 @@ jobs:
           key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-${{ github.job }}
 
       - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
-        name: Build RPM Package for CentOS8
-        id: rpm_build_centos8
+        name: Build RPM Package
+        id: rpm_build_el8
         uses: cnangel/rpmbuild@centos8
         with:
           spec_file: "${{ env.package_name }}.spec"
@@ -183,15 +183,15 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y jq jo
-          echo "el8_rpm_packages=$(find ${{ env.rpm_path }} -name '*.el8*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
+          echo "rpm_packages=$(find ${{ env.rpm_path }} -name '*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
 
   rpm-build-el9:
-    name: Create el9 Release
+    name: Create Release
     runs-on: ubuntu-latest
     needs: [basic-build]
     outputs:
-      rpm_packages: ${{ steps.output_info.outputs.el9_rpm_packages }}
+      rpm_packages: ${{ steps.output_info.outputs.rpm_packages }}
     env:
       our_date: ${{ needs.basic-build.outputs.our_date }}
       git_hash: ${{ needs.basic-build.outputs.git_hash }}
@@ -213,8 +213,8 @@ jobs:
           key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-${{ github.job }}
 
       - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
-        name: Build RPM Package for CentOS9
-        id: rpm_build_centos9
+        name: Build RPM Package
+        id: rpm_build_el9
         uses: cnangel/rpmbuild@centos9
         with:
           spec_file: "${{ env.package_name }}.spec"
@@ -231,15 +231,15 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y jq jo
-          echo "el9_rpm_packages=$(find ${{ env.rpm_path }} -name '*.el9*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
+          echo "rpm_packages=$(find ${{ env.rpm_path }} -name '*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
 
   rpm-build-fc38:
-    name: Create FC38 Release
+    name: Create Release
     runs-on: ubuntu-latest
     needs: [basic-build]
     outputs:
-      rpm_packages: ${{ steps.output_info.outputs.fc38_rpm_packages }}
+      rpm_packages: ${{ steps.output_info.outputs.rpm_packages }}
     env:
       our_date: ${{ needs.basic-build.outputs.our_date }}
       git_hash: ${{ needs.basic-build.outputs.git_hash }}
@@ -261,8 +261,8 @@ jobs:
           key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-${{ github.job }}
 
       - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
-        name: Build RPM Package for Fedora38
-        id: rpm_build_fedora38
+        name: Build RPM Package
+        id: rpm_build_fc38
         uses: cnangel/rpmbuild@fedora/38
         with:
           spec_file: "${{ env.package_name }}.spec"
@@ -280,7 +280,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y jq jo
-          echo "fc38_rpm_packages=$(find ${{ env.rpm_path }} -name '*.fc38*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
+          echo "rpm_packages=$(find ${{ env.rpm_path }} -name '*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
 
   publish-release:
@@ -352,105 +352,10 @@ jobs:
             README.md,LICENSE
             ${{ env.deb_packages }}
             ${{ env.el7_rpm_packages }}
+            ${{ env.el8_rpm_packages }}
+            ${{ env.el9_rpm_packages }}
             ${{ env.fc38_rpm_packages }}
           token: ${{ secrets.SSE_TOKEN }}
           draft: false
           prerelease: false
 
-#      - name: Restore DEB Cache for Ubuntu
-#        id: deb_cache_restore
-#        uses: actions/cache/restore@v3
-#        with:
-#          path: |
-#            ${{ env.deb_path }}
-#          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-deb_build
-#
-#      - if: steps.deb_cache_restore.outputs.cache-hit != 'true'
-#        name: Build DEB Package for Ubuntu
-#        id: deb_build_ubuntu
-#        uses: cnangel/build-deb-action@master
-#        with:
-#          before_build_hook: sed -i "s#0.0.30-1#${{ env.version_id }}-1#" debian/changelog
-#          buildpackage_opts: --build=binary
-#          is_output_all_files: false
-#
-#      - name: Save DEB Cache for Ubuntu
-#        id: deb_cache_save
-#        uses: actions/cache/save@v3
-#        with:
-#          path: |
-#            ${{ env.deb_path }}
-#          key: ${{ steps.deb_cache_restore.outputs.cache-primary-key }}
-#
-#      - name: Restore RPM Cache
-#        id: rpm_cache_restore
-#        uses: actions/cache/restore@v3
-#        with:
-#          path: ${{ env.rpm_path }}
-#          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-rpm_build
-#
-#      - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
-#        name: Build RPM Package for CentOS7
-#        id: rpm_build_centos7
-#        uses: cnangel/rpmbuild@centos7
-#        with:
-#          spec_file: "${{ env.package_name }}.spec"
-#
-#      - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
-#        name: Build RPM Package for CentOS8
-#        id: rpm_build_centos8
-#        uses: cnangel/rpmbuild@centos8
-#        with:
-#          spec_file: "${{ env.package_name }}.spec"
-#
-#      - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
-#        name: Build RPM Package for CentOS9
-#        id: rpm_build_centos9
-#        uses: cnangel/rpmbuild@centos9
-#        with:
-#          spec_file: "${{ env.package_name }}.spec"
-#
-#      - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
-#        name: Build RPM Package for Fedora38
-#        id: rpm_build_fedora38
-#        uses: cnangel/rpmbuild@fedora/38
-#        with:
-#          spec_file: "${{ env.package_name }}.spec"
-#
-#      - name: Save RPM Cache
-#        id: rpm_cache_save
-#        uses: actions/cache/save@v3
-#        with:
-#          path: |
-#            ${{ env.rpm_path }}
-#          key: ${{ steps.rpm_cache_restore.outputs.cache-primary-key }}
-#
-#      - name: Set Output Info
-#        id: output_info
-#        run: |
-#          echo "deb_packages=$(find ${{ env.deb_path }} -name '*.deb' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
-#          echo "el7_rpm_packages=$(find ${{ env.rpm_path }} -name '*.el7*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
-#          echo "el8_rpm_packages=$(find ${{ env.rpm_path }} -name '*.el8*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
-#          echo "el9_rpm_packages=$(find ${{ env.rpm_path }} -name '*.el9*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
-#          echo "fc38_rpm_packages=$(find ${{ env.rpm_path }} -name '*.fc38*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
-#
-#      - name: Release ${{ github.ref_name }}
-#        uses: softprops/action-gh-release@v1
-#        with:
-#          tag_name: ${{ github.ref }}
-#          name: Release ${{ github.ref_name }}
-#          body: |
-#            Changes in this Release ${{ github.ref_name }}
-#            - Create DEB and RPM
-#            - Add Cache support
-#            - Upload DEB, Source RPM and RPMS
-#          files: |
-#            README.md,LICENSE
-#            ${{ steps.output_info.outputs.deb_packages }}
-#            ${{ steps.output_info.outputs.el7_rpm_packages }}
-#            ${{ steps.output_info.outputs.el8_rpm_packages }}
-#            ${{ steps.output_info.outputs.el9_rpm_packages }}
-#            ${{ steps.output_info.outputs.fc38_rpm_packages }}
-#          token: ${{ secrets.SSE_TOKEN }}
-#          draft: false
-#          prerelease: false
