@@ -18,6 +18,9 @@ jobs:
       cc_files_hash_id: ${{ env.cc_files_hash_id }}
       version_id: ${{ env.version_id }}
       package_name: ${{ env.package_name }}
+      test_file: ${{ env.test_file }}
+      deb_path: ${{ env.deb_path }}
+      rpm_path: ${{ env.rpm_path }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@master
@@ -35,8 +38,8 @@ jobs:
           echo "package_name=$package_name" >> $GITHUB_ENV
           echo "cc_files_hash_id=${cc_hash_id:0:10}" >> $GITHUB_ENV
           echo "deb_path=debian/artifacts" >> $GITHUB_ENV
-          echo "test_file=1.txt" >> $GITHUB_ENV
           echo "rpm_path=rpmbuild/RPMS" >> $GITHUB_ENV
+          echo "test_file=1.txt" >> $GITHUB_ENV
       - id: test_cache_restore
         uses: actions/cache/restore@v3
         with:
@@ -68,6 +71,7 @@ jobs:
           version_id: ${{ needs.basic-build.outputs.version_id }}
           package_name: ${{ needs.basic-build.outputs.package_name }}
           cc_files_hash_id: ${{ needs.basic-build.outputs.cc_files_hash_id }}
+          test_file: ${{ needs.basic-build.outputs.test_file }}
         name: Print Vars ${{ env.git_hash }}
         run: |
           echo $our_date
