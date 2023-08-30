@@ -33,21 +33,22 @@ jobs:
           echo "deb_path=debian/artifacts" >> $GITHUB_ENV
           echo "rpm_path=rpmbuild/RPMS" >> $GITHUB_ENV
 
-      - name: DEB Cache for Ubuntu
-        id: deb_cache
-        uses: actions/cache@v3
+      - name: Restore DEB Cache for Ubuntu
+        id: deb_cache_restore
+        uses: actions/cache/restore@v3
         with:
-          path: ${{ env.deb_path }}
+          path: |
+            ${{ env.deb_path }}
           # key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.git_hash }}-deb_build_ubuntu-${{ hashFiles('cello.c') }}
-          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-deb_build-${{ env.cc_files_hash_id }}
+          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-deb_build
 
-      - name: RPM Cache
-        id: rpm_cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.rpm_path }}
-          # key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.git_hash }}-rpm_build_centos7-${{ hashFiles('cello.c') }}
-          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-rpm_build-${{ hashFiles('cello.c') }}
+#      - name: RPM Cache
+#        id: rpm_cache
+#        uses: actions/cache@v3
+#        with:
+#          path: ${{ env.rpm_path }}
+#          # key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.git_hash }}-rpm_build_centos7-${{ hashFiles('cello.c') }}
+#          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-rpm_build-${{ hashFiles('cello.c') }}
 
       - if: steps.deb_cache.outputs.cache-hit != 'true'
         name: Build DEB Package for Ubuntu
@@ -58,37 +59,46 @@ jobs:
           buildpackage_opts: --build=binary
           is_output_all_files: false
 
-      - if: steps.rpm_cache.outputs.cache-hit != 'true'
-        name: Build RPM Package for CentOS7
-        id: rpm_build_centos7
-        uses: cnangel/rpmbuild@centos7
+      - name: Save DEB Cache for Ubuntu
+        id: deb_cache_save
+        uses: actions/cache/save@v3
         with:
-          spec_file: "${{ env.package_name }}.spec"
+          path: |
+            ${{ env.deb_path }}
+          key: ${{ steps.deb_cache_restore.outputs.cache-primary-key }}
 
-      - if: steps.rpm_cache.outputs.cache-hit != 'true'
-        name: Build RPM Package for CentOS8
-        id: rpm_build_centos8
-        uses: cnangel/rpmbuild@centos8
-        with:
-          spec_file: "${{ env.package_name }}.spec"
-
-      - if: steps.rpm_cache.outputs.cache-hit != 'true'
-        name: Build RPM Package for CentOS9
-        id: rpm_build_centos9
-        uses: cnangel/rpmbuild@centos9
-        with:
-          spec_file: "${{ env.package_name }}.spec"
-
-      - if: steps.rpm_cache.outputs.cache-hit != 'true'
-        name: Build RPM Package for Fedora38
-        id: rpm_build_fedora38
-        uses: cnangel/rpmbuild@fedora/38
-        with:
-          spec_file: "${{ env.package_name }}.spec"
+#      - if: steps.rpm_cache.outputs.cache-hit != 'true'
+#        name: Build RPM Package for CentOS7
+#        id: rpm_build_centos7
+#        uses: cnangel/rpmbuild@centos7
+#        with:
+#          spec_file: "${{ env.package_name }}.spec"
+#
+#      - if: steps.rpm_cache.outputs.cache-hit != 'true'
+#        name: Build RPM Package for CentOS8
+#        id: rpm_build_centos8
+#        uses: cnangel/rpmbuild@centos8
+#        with:
+#          spec_file: "${{ env.package_name }}.spec"
+#
+#      - if: steps.rpm_cache.outputs.cache-hit != 'true'
+#        name: Build RPM Package for CentOS9
+#        id: rpm_build_centos9
+#        uses: cnangel/rpmbuild@centos9
+#        with:
+#          spec_file: "${{ env.package_name }}.spec"
+#
+#      - if: steps.rpm_cache.outputs.cache-hit != 'true'
+#        name: Build RPM Package for Fedora38
+#        id: rpm_build_fedora38
+#        uses: cnangel/rpmbuild@fedora/38
+#        with:
+#          spec_file: "${{ env.package_name }}.spec"
 
       - name: Set Output Info
         id: output_info
         run: |
+          ls ${{ env.deb_path }}
           echo "deb_packages=$(find ${{ env.deb_path }} -name '*.deb' | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
           echo "rpm_packages=$(find ${{ env.rpm_path }} -name '*.rpm' | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
@@ -103,13 +113,13 @@ jobs:
             - Upload DEB, Source RPM and RPMS
           files: |
             README.md,LICENSE
-            ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
-            ${{ steps.rpm_build_centos7.outputs.rpm_dir_names }}
-            ${{ steps.rpm_build_centos8.outputs.rpm_dir_names }}
-            ${{ steps.rpm_build_centos9.outputs.rpm_dir_names }}
-            ${{ steps.rpm_build_fedora38.outputs.rpm_dir_names }}
+#            ${{ steps.deb_build_ubuntu.outputs.deb_dir_names }}
+#            ${{ steps.rpm_build_centos7.outputs.rpm_dir_names }}
+#            ${{ steps.rpm_build_centos8.outputs.rpm_dir_names }}
+#            ${{ steps.rpm_build_centos9.outputs.rpm_dir_names }}
+#            ${{ steps.rpm_build_fedora38.outputs.rpm_dir_names }}
             ${{ steps.output_info.deb_packages }}
-            ${{ steps.output_info.rpm_packages }}
+#            ${{ steps.output_info.rpm_packages }}
           token: ${{ secrets.SSE_TOKEN }}
           draft: false
           prerelease: false
