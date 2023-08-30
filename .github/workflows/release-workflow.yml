@@ -50,7 +50,7 @@ jobs:
 #          # key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.git_hash }}-rpm_build_centos7-${{ hashFiles('cello.c') }}
 #          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-rpm_build-${{ hashFiles('cello.c') }}
 
-      - if: steps.deb_cache.outputs.cache-hit != 'true'
+      - if: steps.deb_cache_restore.outputs.cache-hit != 'true'
         name: Build DEB Package for Ubuntu
         id: deb_build_ubuntu
         uses: cnangel/build-deb-action@master
