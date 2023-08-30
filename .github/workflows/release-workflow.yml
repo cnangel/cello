@@ -63,8 +63,8 @@ jobs:
 
     steps:
       - env:
-        OUR_DATE: ${{ needs.basic-build.outputs.our_date }}
-        GIT_HASH: ${{ needs.basic-build.outputs.git_hash }}
+          OUR_DATE: ${{ needs.basic-build.outputs.our_date }}
+          GIT_HASH: ${{ needs.basic-build.outputs.git_hash }}
         name: Print Vars ${{ env.git_hash }}
         run: |
           echo $OUR_DATE
