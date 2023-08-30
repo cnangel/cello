@@ -225,6 +225,7 @@ jobs:
           path: |
             ${{ env.rpm_path }}
           key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-rpm-build-fc38
+
       - name: Release ${{ github.ref_name }}
         uses: softprops/action-gh-release@v1
         with:
