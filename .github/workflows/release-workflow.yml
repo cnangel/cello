@@ -133,6 +133,8 @@ jobs:
       - name: Set Output Info
         id: output_info
         run: |
+          sudo apt update
+          sudo apt install -y jq jo
           echo "el7_rpm_packages=$(find ${{ env.rpm_path }} -name '*.el7*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
 
@@ -180,6 +182,8 @@ jobs:
       - name: Set Output Info
         id: output_info
         run: |
+          sudo apt update
+          sudo apt install -y jq jo
           echo "fc38_rpm_packages=$(find ${{ env.rpm_path }} -name '*.fc38*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
 
