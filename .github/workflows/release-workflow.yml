@@ -12,20 +12,22 @@ jobs:
   basic-build:
     name: Basic Build
     runs-on: ubuntu-latest
+    outputs:
+      our_date: ${{ var.our_date }}
+      git_hash: ${{ steps.set_vars.outputs.git_hash }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@master
       - name: Set Variables
         id: set_vars
         run: |
-          sudo apt update
-          sudo apt install jq jo -y
           version_id=${GITHUB_REF_NAME:1}
           package_name=${GITHUB_REPOSITORY##*/}
           sha_short=$(git rev-parse --short "$GITHUB_SHA")
           cc_hash_id=${{ hashFiles('cello.c') }}
           echo "our_date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_ENV
           echo "git_hash=$sha_short" >> $GITHUB_ENV
+          echo "git_hash=$sha_short" >> $GITHUB_OUTPUT
           echo "version_id=$version_id" >> $GITHUB_ENV
           echo "package_name=$package_name" >> $GITHUB_ENV
           echo "cc_files_hash_id=${cc_hash_id:0:10}" >> $GITHUB_ENV
@@ -40,8 +42,8 @@ jobs:
     steps:
       - name: Print Vars ${{ env.git_hash }}
         run: |
-          echo ${{ env.our_date  }}
-          echo ${{ needs.basic-build.steps.set_vars.name }}
+          echo ${{ needs.basic-build.outputs.our_date }}
+          echo ${{ needs.basic-build.outputs.git_hash }}
 
 
 #      - name: Restore DEB Cache for Ubuntu
