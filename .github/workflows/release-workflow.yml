@@ -14,16 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       our_date: ${{ env.our_date }}
-      git_hash: ${{ steps.set_vars.outputs.git_hash }}
+      git_hash: ${{ env.git_hash }}
       cc_files_hash_id: ${{ env.cc_files_hash_id }}
       version_id: ${{ env.version_id }}
       package_name: ${{ env.package_name }}
-      test_file: ${{ env.test_file }}
       deb_path: ${{ env.deb_path }}
       rpm_path: ${{ env.rpm_path }}
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@master
       - name: Set Variables
         id: set_vars
         run: |
@@ -33,61 +30,99 @@ jobs:
           cc_hash_id=${{ hashFiles('cello.c') }}
           echo "our_date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_ENV
           echo "git_hash=$sha_short" >> $GITHUB_ENV
-          echo "git_hash=$sha_short" >> $GITHUB_OUTPUT
           echo "version_id=$version_id" >> $GITHUB_ENV
           echo "package_name=$package_name" >> $GITHUB_ENV
           echo "cc_files_hash_id=${cc_hash_id:0:10}" >> $GITHUB_ENV
           echo "deb_path=debian/artifacts" >> $GITHUB_ENV
           echo "rpm_path=rpmbuild/RPMS" >> $GITHUB_ENV
-          echo "test_file=1.txt" >> $GITHUB_ENV
-      - id: test_cache_restore
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-            ${{ env.test_file }}
-          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-test_build
-      - if: steps.test_cache_restore.outputs.cache-hit != 'true'
-        run: |
-          pwd
-          echo ok > ${{ env.test_file }}
-          ls
-      - id: test_cache_save
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            ${{ env.test_file }}
-          key: ${{ steps.test_cache_restore.outputs.cache-primary-key }}
 
 
   deb-build:
-    name: Create Release to ${{ inputs.deploy_target }} by @${{ github.actor }}
+    name: Create Ubuntu Release
     runs-on: ubuntu-latest
     needs: [basic-build]
+    outputs:
+      deb_packages: ${{ steps.output_info.outputs.deb_packages }}
     env:
       our_date: ${{ needs.basic-build.outputs.our_date }}
       git_hash: ${{ needs.basic-build.outputs.git_hash }}
       version_id: ${{ needs.basic-build.outputs.version_id }}
       package_name: ${{ needs.basic-build.outputs.package_name }}
       cc_files_hash_id: ${{ needs.basic-build.outputs.cc_files_hash_id }}
-      test_file: ${{ needs.basic-build.outputs.test_file }}
-
+      deb_path: ${{ needs.basic-build.outputs.deb_path }}
 
     steps:
-      - name: Print Vars ${{ env.git_hash }}
-        run: |
-          echo $our_date
-          echo ${{ env.our_date }}
-          echo ${{ needs.basic-build.outputs.git_hash }}
-      - id: test_cache_restore
+      - name: Checkout Code
+        uses: actions/checkout@master
+
+      - name: Restore DEB Cache for Ubuntu
+        id: deb_cache_restore
         uses: actions/cache/restore@v3
         with:
           path: |
-            ${{ env.test_file }}
-          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-test_build
-      - run: |
-          pwd
-          ls
+            ${{ env.deb_path }}
+          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-deb_build
 
+      - if: steps.deb_cache_restore.outputs.cache-hit != 'true'
+        name: Build DEB Package for Ubuntu
+        id: deb_build_ubuntu
+        uses: cnangel/build-deb-action@master
+        with:
+          before_build_hook: sed -i "s#0.0.30-1#${{ env.version_id }}-1#" debian/changelog
+          buildpackage_opts: --build=binary
+          is_output_all_files: false
+
+      - name: Save DEB Cache for Ubuntu
+        id: deb_cache_save
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ${{ env.deb_path }}
+          key: ${{ steps.deb_cache_restore.outputs.cache-primary-key }}
+
+      - name: Set Output Info
+        id: output_info
+        run: |
+          echo "deb_packages=$(find ${{ env.deb_path }} -name '*.deb' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
+
+  publish-release:
+    name: Publish Release
+    runs-on: ubuntu-latest
+    needs: [deb-build, basic-build]
+    env:
+      our_date: ${{ needs.basic-build.outputs.our_date }}
+      git_hash: ${{ needs.basic-build.outputs.git_hash }}
+      version_id: ${{ needs.basic-build.outputs.version_id }}
+      package_name: ${{ needs.basic-build.outputs.package_name }}
+      cc_files_hash_id: ${{ needs.basic-build.outputs.cc_files_hash_id }}
+      deb_packages: ${{ needs.deb-build.outputs.deb_packages }}
+      deb_path: ${{ needs.basic-build.outputs.deb_path }}
+      rpm_path: ${{ needs.basic-build.outputs.rpm_path }}
+
+    steps:
+      - name: Restore DEB Cache for Ubuntu
+        id: deb_cache_restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ${{ env.deb_path }}
+          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-deb_build
+      - name: Release ${{ github.ref_name }}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            Changes in this Release ${{ github.ref_name }}
+            - Create DEB and RPM
+            - Add Cache support
+            - Upload DEB, Source RPM and RPMS
+          files: |
+            README.md,LICENSE
+            ${{ env.deb_packages }}
+          token: ${{ secrets.SSE_TOKEN }}
+          draft: false
+          prerelease: false
 
 #      - name: Restore DEB Cache for Ubuntu
 #        id: deb_cache_restore
