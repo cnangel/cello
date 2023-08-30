@@ -39,16 +39,7 @@ jobs:
         with:
           path: |
             ${{ env.deb_path }}
-          # key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.git_hash }}-deb_build_ubuntu-${{ hashFiles('cello.c') }}
           key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-deb_build
-
-#      - name: RPM Cache
-#        id: rpm_cache
-#        uses: actions/cache@v3
-#        with:
-#          path: ${{ env.rpm_path }}
-#          # key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.git_hash }}-rpm_build_centos7-${{ hashFiles('cello.c') }}
-#          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-rpm_build-${{ hashFiles('cello.c') }}
 
       - if: steps.deb_cache_restore.outputs.cache-hit != 'true'
         name: Build DEB Package for Ubuntu
@@ -67,40 +58,58 @@ jobs:
             ${{ env.deb_path }}
           key: ${{ steps.deb_cache_restore.outputs.cache-primary-key }}
 
-#      - if: steps.rpm_cache.outputs.cache-hit != 'true'
-#        name: Build RPM Package for CentOS7
-#        id: rpm_build_centos7
-#        uses: cnangel/rpmbuild@centos7
-#        with:
-#          spec_file: "${{ env.package_name }}.spec"
-#
-#      - if: steps.rpm_cache.outputs.cache-hit != 'true'
-#        name: Build RPM Package for CentOS8
-#        id: rpm_build_centos8
-#        uses: cnangel/rpmbuild@centos8
-#        with:
-#          spec_file: "${{ env.package_name }}.spec"
-#
-#      - if: steps.rpm_cache.outputs.cache-hit != 'true'
-#        name: Build RPM Package for CentOS9
-#        id: rpm_build_centos9
-#        uses: cnangel/rpmbuild@centos9
-#        with:
-#          spec_file: "${{ env.package_name }}.spec"
-#
-#      - if: steps.rpm_cache.outputs.cache-hit != 'true'
-#        name: Build RPM Package for Fedora38
-#        id: rpm_build_fedora38
-#        uses: cnangel/rpmbuild@fedora/38
-#        with:
-#          spec_file: "${{ env.package_name }}.spec"
+      - name: Restore RPM Cache
+        id: rpm_cache_restore
+        uses: actions/cache/restore@v3
+        with:
+          path: ${{ env.rpm_path }}
+          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-rpm_build
+
+      - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
+        name: Build RPM Package for CentOS7
+        id: rpm_build_centos7
+        uses: cnangel/rpmbuild@centos7
+        with:
+          spec_file: "${{ env.package_name }}.spec"
+
+      - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
+        name: Build RPM Package for CentOS8
+        id: rpm_build_centos8
+        uses: cnangel/rpmbuild@centos8
+        with:
+          spec_file: "${{ env.package_name }}.spec"
+
+      - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
+        name: Build RPM Package for CentOS9
+        id: rpm_build_centos9
+        uses: cnangel/rpmbuild@centos9
+        with:
+          spec_file: "${{ env.package_name }}.spec"
+
+      - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
+        name: Build RPM Package for Fedora38
+        id: rpm_build_fedora38
+        uses: cnangel/rpmbuild@fedora/38
+        with:
+          spec_file: "${{ env.package_name }}.spec"
+
+      - name: Save RPM Cache
+        id: rpm_cache_save
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ${{ env.rpm_path }}
+          key: ${{ steps.rpm_cache_restore.outputs.cache-primary-key }}
 
       - name: Set Output Info
         id: output_info
         run: |
           ls ${{ env.deb_path }}
           echo "deb_packages=$(find ${{ env.deb_path }} -name '*.deb' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
-          echo "rpm_packages=$(find ${{ env.rpm_path }} -name '*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
+          echo "el7_rpm_packages=$(find ${{ env.rpm_path }} -name '*.el7*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
+          echo "el8_rpm_packages=$(find ${{ env.rpm_path }} -name '*.el8*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
+          echo "el8_rpm_packages=$(find ${{ env.rpm_path }} -name '*.el9*rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
+          echo "fc38_rpm_packages=$(find ${{ env.rpm_path }} -name '*.fc38*rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
       - name: Release ${{ github.ref_name }}
         uses: softprops/action-gh-release@v1
@@ -114,6 +123,10 @@ jobs:
           files: |
             README.md,LICENSE
             ${{ steps.output_info.outputs.deb_packages }}
+            ${{ steps.output_info.outputs.el7_rpm_packages }}
+            ${{ steps.output_info.outputs.el8_rpm_packages }}
+            ${{ steps.output_info.outputs.el9_rpm_packages }}
+            ${{ steps.output_info.outputs.fc38_rpm_packages }}
           token: ${{ secrets.SSE_TOKEN }}
           draft: false
           prerelease: false
