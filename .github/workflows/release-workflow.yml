@@ -63,7 +63,7 @@ jobs:
         with:
           path: |
             ${{ env.deb_path }}
-          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-deb_build
+          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-${{ github.job }}
 
       - if: steps.deb_cache_restore.outputs.cache-hit != 'true'
         name: Build DEB Package for Ubuntu
@@ -114,7 +114,7 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: ${{ env.rpm_path }}
-          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-rpm_build
+          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-${{ github.job }}
 
       - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
         name: Build RPM Package for CentOS7
@@ -136,10 +136,56 @@ jobs:
           echo "el7_rpm_packages=$(find ${{ env.rpm_path }} -name '*.el7*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
 
+  rpm-build-fc38:
+    name: Create FC38 Release
+    runs-on: ubuntu-latest
+    needs: [basic-build]
+    outputs:
+      fc38_rpm_packages: ${{ steps.output_info.outputs.fc38_rpm_packages }}
+    env:
+      our_date: ${{ needs.basic-build.outputs.our_date }}
+      git_hash: ${{ needs.basic-build.outputs.git_hash }}
+      version_id: ${{ needs.basic-build.outputs.version_id }}
+      package_name: ${{ needs.basic-build.outputs.package_name }}
+      cc_files_hash_id: ${{ needs.basic-build.outputs.cc_files_hash_id }}
+      deb_path: ${{ needs.basic-build.outputs.deb_path }}
+      rpm_path: ${{ needs.basic-build.outputs.rpm_path }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@master
+
+      - name: Restore RPM Cache
+        id: rpm_cache_restore
+        uses: actions/cache/restore@v3
+        with:
+          path: ${{ env.rpm_path }}
+          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-${{ github.job }}
+
+      - if: steps.rpm_cache_restore.outputs.cache-hit != 'true'
+        name: Build RPM Package for Fedora38
+        id: rpm_build_fedora38
+        uses: cnangel/rpmbuild@fedora/38
+        with:
+          spec_file: "${{ env.package_name }}.spec"
+
+      - name: Save RPM Cache
+        id: rpm_cache_save
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ${{ env.rpm_path }}
+          key: ${{ steps.rpm_cache_restore.outputs.cache-primary-key }}
+      - name: Set Output Info
+        id: output_info
+        run: |
+          echo "el7_rpm_packages=$(find ${{ env.rpm_path }} -name '*.el7*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
+
+
   publish-release:
     name: Publish Release
     runs-on: ubuntu-latest
-    needs: [deb-build, rpm-build-el7, basic-build]
+    needs: [deb-build, rpm-build-el7, rpm-build-fc38, basic-build]
     env:
       our_date: ${{ needs.basic-build.outputs.our_date }}
       git_hash: ${{ needs.basic-build.outputs.git_hash }}
@@ -150,6 +196,7 @@ jobs:
       rpm_path: ${{ needs.basic-build.outputs.rpm_path }}
       deb_packages: ${{ needs.deb-build.outputs.deb_packages }}
       el7_rpm_packages: ${{ needs.rpm-build-el7.outputs.rpm_packages }}
+      fc38_rpm_packages: ${{ needs.rpm-build-fc38.outputs.rpm_packages }}
 
     steps:
       - name: Restore DEB Cache for Ubuntu
@@ -158,7 +205,21 @@ jobs:
         with:
           path: |
             ${{ env.deb_path }}
-          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-deb_build
+          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-deb-build
+      - name: Restore RPM Cache for el7
+        id: el7_rpm_cache_restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ${{ env.rpm_path }}
+          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-rpm-build-el7
+      - name: Restore RPM Cache for fc38
+        id: fc38_rpm_cache_restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ${{ env.rpm_path }}
+          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-rpm-build-fc38
       - name: Release ${{ github.ref_name }}
         uses: softprops/action-gh-release@v1
         with:
@@ -173,6 +234,7 @@ jobs:
             README.md,LICENSE
             ${{ env.deb_packages }}
             ${{ env.el7_rpm_packages }}
+            ${{ env.fc38_rpm_packages }}
           token: ${{ secrets.SSE_TOKEN }}
           draft: false
           prerelease: false
