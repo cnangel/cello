@@ -33,6 +33,8 @@ jobs:
           echo "cc_files_hash_id=${cc_hash_id:0:10}" >> $GITHUB_ENV
           echo "deb_path=debian/artifacts" >> $GITHUB_ENV
           echo "rpm_path=rpmbuild/RPMS" >> $GITHUB_ENV
+          echo ok > 1.txt
+          ls
 
   deb-build:
     name: Create Release to ${{ inputs.deploy_target }} by @${{ github.actor }}
@@ -44,6 +46,7 @@ jobs:
         run: |
           echo ${{ needs.basic-build.outputs.our_date }}
           echo ${{ needs.basic-build.outputs.git_hash }}
+          ls 
 
 
 #      - name: Restore DEB Cache for Ubuntu
