@@ -118,6 +118,7 @@ jobs:
           body: |
             Changes in this Release ${{ github.ref_name }}
             - Create DEB and RPM
+            - Add Cache support
             - Upload DEB, Source RPM and RPMS
           files: |
             README.md,LICENSE
