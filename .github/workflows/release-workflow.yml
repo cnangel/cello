@@ -63,6 +63,13 @@ jobs:
     name: Create Release to ${{ inputs.deploy_target }} by @${{ github.actor }}
     runs-on: ubuntu-latest
     needs: [basic-build]
+    env:
+      our_date: ${{ needs.basic-build.outputs.our_date }}
+      git_hash: ${{ needs.basic-build.outputs.git_hash }}
+      version_id: ${{ needs.basic-build.outputs.version_id }}
+      package_name: ${{ needs.basic-build.outputs.package_name }}
+      cc_files_hash_id: ${{ needs.basic-build.outputs.cc_files_hash_id }}
+      test_file: ${{ needs.basic-build.outputs.test_file }}
 
     steps:
       - env:
