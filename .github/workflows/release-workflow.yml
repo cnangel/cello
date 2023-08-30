@@ -13,7 +13,7 @@ jobs:
     name: Basic Build
     runs-on: ubuntu-latest
     outputs:
-      our_date: ${{ var.our_date }}
+      our_date: ${{ env.our_date }}
       git_hash: ${{ steps.set_vars.outputs.git_hash }}
     steps:
       - name: Checkout Code
