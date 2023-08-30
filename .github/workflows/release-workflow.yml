@@ -160,11 +160,20 @@ jobs:
           path: |
             ${{ env.rpm_path }}
           key: ${{ steps.rpm_cache_restore.outputs.cache-primary-key }}
+
+      - name: Restore JQ and JO
+        id: jqjo_cache_restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ~/.local/bin/jq
+            ~/.local/bin/jo
+          key: ${{ runner.os }}-jqjo
+
       - name: Set Output Info
         id: output_info
         run: |
-          sudo apt update
-          sudo apt install -y jq jo
+          export PATH=~/.local/bin:$PATH
           echo "rpm_packages=$(find ${{ env.rpm_path }} -name '*.el7*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
 
@@ -208,11 +217,20 @@ jobs:
           path: |
             ${{ env.rpm_path }}
           key: ${{ steps.rpm_cache_restore.outputs.cache-primary-key }}
+
+      - name: Restore JQ and JO
+        id: jqjo_cache_restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ~/.local/bin/jq
+            ~/.local/bin/jo
+          key: ${{ runner.os }}-jqjo
+
       - name: Set Output Info
         id: output_info
         run: |
-          sudo apt update
-          sudo apt install -y jq jo
+          export PATH=~/.local/bin:$PATH
           echo "rpm_packages=$(find ${{ env.rpm_path }} -name '*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
 
@@ -256,11 +274,20 @@ jobs:
           path: |
             ${{ env.rpm_path }}
           key: ${{ steps.rpm_cache_restore.outputs.cache-primary-key }}
+
+      - name: Restore JQ and JO
+        id: jqjo_cache_restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ~/.local/bin/jq
+            ~/.local/bin/jo
+          key: ${{ runner.os }}-jqjo
+
       - name: Set Output Info
         id: output_info
         run: |
-          sudo apt update
-          sudo apt install -y jq jo
+          export PATH=~/.local/bin:$PATH
           echo "rpm_packages=$(find ${{ env.rpm_path }} -name '*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
 
@@ -305,11 +332,19 @@ jobs:
             ${{ env.rpm_path }}
           key: ${{ steps.rpm_cache_restore.outputs.cache-primary-key }}
 
+      - name: Restore JQ and JO
+        id: jqjo_cache_restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ~/.local/bin/jq
+            ~/.local/bin/jo
+          key: ${{ runner.os }}-jqjo
+
       - name: Set Output Info
         id: output_info
         run: |
-          sudo apt update
-          sudo apt install -y jq jo
+          export PATH=~/.local/bin:$PATH
           echo "rpm_packages=$(find ${{ env.rpm_path }} -name '*.rpm' 2>/dev/null | jo -a | jq -r 'join("'","'")')" >> $GITHUB_OUTPUT
 
 
@@ -336,35 +371,30 @@ jobs:
         uses: actions/checkout@master
 
       - name: Restore DEB Cache for Ubuntu
-        id: deb_cache_restore
         uses: actions/cache/restore@v3
         with:
           path: |
             ${{ env.deb_path }}
           key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-deb-build
       - name: Restore RPM Cache for el7
-        id: el7_rpm_cache_restore
         uses: actions/cache/restore@v3
         with:
           path: |
             ${{ env.rpm_path }}
           key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-rpm-build-el7
       - name: Restore RPM Cache for el8
-        id: el8_rpm_cache_restore
         uses: actions/cache/restore@v3
         with:
           path: |
             ${{ env.rpm_path }}
           key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-rpm-build-el8
       - name: Restore RPM Cache for el9
-        id: el9_rpm_cache_restore
         uses: actions/cache/restore@v3
         with:
           path: |
             ${{ env.rpm_path }}
           key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-rpm-build-el9
       - name: Restore RPM Cache for fc38
-        id: fc38_rpm_cache_restore
         uses: actions/cache/restore@v3
         with:
           path: |
