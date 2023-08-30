@@ -11,7 +11,6 @@ on:
 jobs:
   basic-build:
     name: Basic Build
-    id: basic_build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -42,7 +41,7 @@ jobs:
       - name: Print Vars ${{ env.git_hash }}
         run: |
           echo ${{ env.our_date  }}
-          echo ${{ needs.basic_build.steps.set_vars.name }}
+          echo ${{ needs.basic-build.steps.set_vars.name }}
 
 
 #      - name: Restore DEB Cache for Ubuntu
