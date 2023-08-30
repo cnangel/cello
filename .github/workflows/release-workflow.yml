@@ -63,12 +63,15 @@ jobs:
 
     steps:
       - env:
-          OUR_DATE: ${{ needs.basic-build.outputs.our_date }}
-          GIT_HASH: ${{ needs.basic-build.outputs.git_hash }}
+          our_date: ${{ needs.basic-build.outputs.our_date }}
+          git_hash: ${{ needs.basic-build.outputs.git_hash }}
+          version_id: ${{ needs.basic-build.outputs.version_id }}
+          package_name: ${{ needs.basic-build.outputs.package_name }}
+          cc_files_hash_id: ${{ needs.basic-build.outputs.cc_files_hash_id }}
         name: Print Vars ${{ env.git_hash }}
         run: |
-          echo $OUR_DATE
-          echo ${{ env.OUR_DATE }}
+          echo $our_date
+          echo ${{ env.our_date }}
           echo ${{ needs.basic-build.outputs.git_hash }}
       - id: test_cache_restore
         uses: actions/cache/restore@v3
