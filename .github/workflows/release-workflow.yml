@@ -21,6 +21,8 @@ jobs:
       deb_path: ${{ env.deb_path }}
       rpm_path: ${{ env.rpm_path }}
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@master
       - name: Set Variables
         id: set_vars
         run: |
