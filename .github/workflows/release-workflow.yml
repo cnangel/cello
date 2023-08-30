@@ -15,6 +15,9 @@ jobs:
     outputs:
       our_date: ${{ env.our_date }}
       git_hash: ${{ steps.set_vars.outputs.git_hash }}
+      cc_files_hash_id: ${{ env.cc_files_hash_id }}
+      version_id: ${{ env.version_id }}
+      package_name: ${{ env.package_name }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@master
@@ -32,10 +35,26 @@ jobs:
           echo "package_name=$package_name" >> $GITHUB_ENV
           echo "cc_files_hash_id=${cc_hash_id:0:10}" >> $GITHUB_ENV
           echo "deb_path=debian/artifacts" >> $GITHUB_ENV
+          echo "test_file=1.txt" >> $GITHUB_ENV
           echo "rpm_path=rpmbuild/RPMS" >> $GITHUB_ENV
+      - id: test_cache_restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ${{ env.test_file }}
+          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-test_build
+      - if: steps.test_cache_restore.outputs.cache-hit != 'true'
+        run: |
           pwd
-          echo ok > 1.txt
+          echo ok > ${{ env.test_file }}
           ls
+      - id: test_cache_save
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ${{ env.test_file }}
+          key: ${{ steps.test_cache_restore.outputs.cache-primary-key }}
+
 
   deb-build:
     name: Create Release to ${{ inputs.deploy_target }} by @${{ github.actor }}
@@ -43,10 +62,21 @@ jobs:
     needs: [basic-build]
 
     steps:
+      - env:
+        OUR_DATE: ${{ needs.basic-build.outputs.our_date }}
+        GIT_HASH: ${{ needs.basic-build.outputs.git_hash }}
       - name: Print Vars ${{ env.git_hash }}
         run: |
-          echo ${{ needs.basic-build.outputs.our_date }}
+          echo $OUR_DATE
+          echo ${{ env.OUR_DATE }}
           echo ${{ needs.basic-build.outputs.git_hash }}
+      - id: test_cache_restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ${{ env.test_file }}
+          key: ${{ runner.os }}-${{ env.package_name }}-${{ env.version_id }}-${{ env.cc_files_hash_id }}-test_build
+      - run: |
           pwd
           ls
 
