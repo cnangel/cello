@@ -141,7 +141,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@master
-
+      - name: Before Build Hook
+        run: |
+          sed -i 's#0.0.1#${{ env.version_id }}#' "${{ env.package_name }}.spec"
       - name: Restore RPM Cache
         id: rpm_cache_restore
         uses: actions/cache/restore@v3
@@ -198,6 +200,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@master
+      - name: Before Build Hook
+        run: |
+          sed -i 's#0.0.1#${{ env.version_id }}#' "${{ env.package_name }}.spec"
 
       - name: Restore RPM Cache
         id: rpm_cache_restore
@@ -255,6 +260,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@master
+      - name: Before Build Hook
+        run: |
+          sed -i 's#0.0.1#${{ env.version_id }}#' "${{ env.package_name }}.spec"
 
       - name: Restore RPM Cache
         id: rpm_cache_restore
@@ -312,6 +320,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@master
+      - name: Before Build Hook
+        run: |
+          sed -i 's#0.0.1#${{ env.version_id }}#' "${{ env.package_name }}.spec"
 
       - name: Restore RPM Cache
         id: rpm_cache_restore
