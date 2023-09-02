@@ -411,9 +411,9 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             Changes in this Release ${{ github.ref_name }}
-            - Create DEB and RPM
+            - Create DEBs and RPMs
             - Add Cache support
-            - Upload DEB, Source RPM and RPMS
+            - Upload DEBs, RPMs and Source RPM
           files: |
             README.md,LICENSE
             ${{ env.deb_packages }}
